@@ -1,1 +1,56 @@
 /* CUSTOM STORY STYLE */
+#content
+  height 100%
+  .viz-wrapper
+    display flex
+    .viz
+      margin-right 30px
+      display flex
+      width 200px
+      justify-content center
+      flex-wrap wrap
+      .line-chart-container
+        svg
+          display block
+          .lines
+            pointer-events none
+            path
+              fill none
+              stroke black
+          .voronoi
+            opacity 0
+            path
+              fill black
+              stroke black
+
+      p
+        font-size 12px
+        cursor pointer
+        font-family $atlas
+        margin 0
+        margin-right 10px
+    .song-container
+      display flex
+      flex-wrap wrap
+      flex-direction column
+      height 100vh
+      flex-grow 1
+      .song-row
+        position relative
+        cursor pointer
+        .song-overlay
+          position absolute
+          font-size 12px
+          font-family $atlas
+          margin 0
+          background #e8e8e8
+          top 0px
+          display none
+          z-index 1000
+          width 300px
+        .song-text
+          font-size 12px
+          font-family $atlas
+          margin 0
+          position relative
+          z-index 100

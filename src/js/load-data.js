@@ -18,6 +18,6 @@ function loadA(file) {
 }
 
 export default function loadData() {
-  const loads = [loadA('filename.csv')];
+  const loads = [loadA('data.csv')];
   return Promise.all(loads);
 }
