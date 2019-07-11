@@ -4,11 +4,16 @@
   .viz-wrapper
     display flex
     .viz
+
       margin-right 30px
       display flex
       width 200px
       justify-content center
       flex-wrap wrap
+      .data-chooser
+        display flex
+        label
+          display flex
       .line-chart-container
         svg
           display block
@@ -23,7 +28,7 @@
               fill black
               stroke black
 
-      p
+      p, label
         font-size 12px
         cursor pointer
         font-family $atlas
@@ -49,8 +54,18 @@
           z-index 1000
           width 300px
         .song-text
-          font-size 12px
+          font-size 14px
           font-family $atlas
           margin 0
           position relative
           z-index 100
+      .numerator
+        color red
+      .missing
+        opacity .6
+        display none
+      .filtered
+        display none
+        .song-text
+          font-size 10px
+          text-decoration line-through
