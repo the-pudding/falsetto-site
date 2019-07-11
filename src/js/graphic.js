@@ -1,9 +1,13 @@
+
+import {Howl, Howler} from 'howler';
+
 /* global d3 */
 function resize() {}
 
 function init(data) {
 
-
+  var playing = false;
+  var weighted = true;
   var yearSelected = 1997;
   var vocalRegisterThresh = 6;
   var dataWeekWeighted = data[0];
@@ -79,8 +83,9 @@ function init(data) {
     for (var year in newData){
       var falsettoCount = 0
       var vocalRegisterCount = 0
-      var eitherCount = 0
+      var falsettoAvgCount = 0
       var denominatorCount = 0;
+      var totalPoints = 0;
 
       for (var song in newData[year].values){
 
@@ -91,8 +96,20 @@ function init(data) {
           if(newData[year].values[song]["falsetto"] > 0){
             falsettoCount = falsettoCount + 1;
           }
+          var songPoints = +newData[year].values[song]["points"];
+
+          totalPoints = totalPoints + songPoints;
+
 
           vocalRegisterCount = vocalRegisterCount + +newData[year].values[song]["register"];
+
+          if(weighted){
+            falsettoAvgCount = falsettoAvgCount + (songPoints * +newData[year].values[song]["falsetto"]);
+          }
+          else{
+            falsettoAvgCount = falsettoAvgCount + (+newData[year].values[song]["falsetto"]);
+          }
+
 
           // if(newData[year].values[song]["register"] > vocalRegisterThresh){
           //   vocalRegisterCount = vocalRegisterCount + 1;
@@ -102,11 +119,14 @@ function init(data) {
           // }
         }
       }
+      if(weighted){
+        denominatorCount = totalPoints;
+      }
+
 
       newData[year].falsetto_percent = falsettoCount/denominatorCount
       newData[year].register_percent = vocalRegisterCount/denominatorCount
-      newData[year].either_percent = eitherCount/denominatorCount
-
+      newData[year].falsetto_avg = falsettoAvgCount/denominatorCount
     }
     dataSongsByYear = d3.map(newData,function(d){return d.key})
     buildLineChart(newData);
@@ -353,6 +373,14 @@ function init(data) {
       })
       .on("mouseout",function(d){
         d3.select(this).select(".song-overlay").style("display",null);
+      })
+      .on("click",function(d){
+        console.log("here");
+        var sound = new Howl({
+          src: ['https://p.scdn.co/mp3-preview/170217205f9fa2853e8908b933b8e2564e908d04?cid=774b29d4f13844c495f206cafdad9c86']
+        });
+        sound.play();
+
       })
 
     songRows
