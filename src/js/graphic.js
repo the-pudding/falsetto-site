@@ -1,5 +1,7 @@
 
 import {Howl, Howler} from 'howler';
+import noUiSlider from 'nouislider';
+
 
 /* global d3 */
 function resize() {}
@@ -7,7 +9,7 @@ function resize() {}
 function init(data) {
   var sounds = null;
   var playingId = null;
-  var falsettoThreshold = 0;
+  var falsettoThreshold = 3;
   var falsettoParameter = "avg";
   var registerParameter = "avg";
   var playing = false;
@@ -29,11 +31,7 @@ function init(data) {
   function fitsNumeratorCriteria(d){
     var fits = false;
 
-    if(d["falsetto"] > falsettoThreshold){
-      fits = true;
-    }
-
-    if(d["register"] > vocalRegisterThresh){
+    if(d["falsetto"] >= falsettoThreshold && d["register"] >= vocalRegisterThresh){
       fits = true;
     }
 
@@ -96,11 +94,11 @@ function init(data) {
 
           if(weighted){
 
-            if(newData[year].values[song]["register"] > vocalRegisterThresh){
+            if(newData[year].values[song]["register"] >= vocalRegisterThresh){
               vocalRegisterCount = vocalRegisterCount + songPoints;
             }
 
-            if(newData[year].values[song]["falsetto"] > falsettoThreshold){
+            if(newData[year].values[song]["falsetto"] >= falsettoThreshold){
               falsettoCount = falsettoCount + songPoints;
             }
 
@@ -110,11 +108,11 @@ function init(data) {
           }
           else{
 
-            if(newData[year].values[song]["falsetto"] > falsettoThreshold){
+            if(newData[year].values[song]["falsetto"] >= falsettoThreshold){
               falsettoCount = falsettoCount + 1;
             }
 
-            if(newData[year].values[song]["register"] > vocalRegisterThresh){
+            if(newData[year].values[song]["register"] >= vocalRegisterThresh){
               vocalRegisterCount = vocalRegisterCount + 1;
             }
 
@@ -423,6 +421,9 @@ function init(data) {
   }
 
   function buildSongArray(dataForChart,year){
+
+    console.log("building song array");
+
     var container = d3.select(".song-container");
     container.selectAll("div").remove();
 
@@ -831,6 +832,63 @@ function init(data) {
             }
           })
         })
+
+        var sliderFalsetto = document.getElementById('slider-falsetto');
+        var sliderRegister = document.getElementById('slider-register');
+
+
+        var sliderF = noUiSlider.create(sliderFalsetto, {
+            start: [falsettoThreshold],
+            step: 1,
+            tooltips: [true],
+            format: {
+              // 'to' the formatted value. Receives a number.
+              to: function (value) {
+                return value + '';
+              },
+              // 'from' the formatted value.
+              // Receives a string, should return a number.
+              from: function (value) {
+                return Number(Math.round(value));
+              }
+            },
+            range: {
+                'min': [0],
+                'max': [10]
+            }
+        })
+
+        sliderF.on('change',function(values, handle, unencoded, tap, positions){
+          falsettoThreshold = +values[0]
+          calculatePercents(dataSongsByYearNestTotal)
+        });
+
+        var sliderR = noUiSlider.create(sliderRegister, {
+            start: [vocalRegisterThresh],
+            step: 1,
+            tooltips: [true],
+            format: {
+              // 'to' the formatted value. Receives a number.
+              to: function (value) {
+                return Math.round(value);
+              },
+              // 'from' the formatted value.
+              // Receives a string, should return a number.
+              from: function (value) {
+                return Number(Math.round(value));
+              }
+            },
+            range: {
+                'min': [1],
+                'max': [10]
+            }
+        })
+
+        sliderR.on('change',function(values, handle, unencoded, tap, positions){
+          vocalRegisterThresh = +values[0]
+          calculatePercents(dataSongsByYearNestTotal)
+        });
+
 
 
   }
