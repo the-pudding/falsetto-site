@@ -5,15 +5,19 @@ import {Howl, Howler} from 'howler';
 function resize() {}
 
 function init(data) {
-
+  var sounds = null;
+  var playingId = null;
+  var falsettoThreshold = 0;
+  var falsettoParameter = "avg";
+  var registerParameter = "avg";
   var playing = false;
-  var weighted = true;
+  var weighted = false;
   var yearSelected = 1997;
   var vocalRegisterThresh = 6;
   var dataWeekWeighted = data[0];
   var dataSongsByYear = null;
   var songCriteriaSelected = "falsetto_percent"
-
+  var lineChartParameter = "falsetto";
   var dataSongsByYearNestTotal = d3.nest().key(function(d){
       return d.year;
     })
@@ -25,22 +29,12 @@ function init(data) {
   function fitsNumeratorCriteria(d){
     var fits = false;
 
-    if(songCriteriaSelected == "falsetto_percent"){
-      if(d["falsetto"] > 0){
-        fits = true;
-      }
+    if(d["falsetto"] > falsettoThreshold){
+      fits = true;
     }
 
-    if(songCriteriaSelected == "register_percent"){
-      if(d["register"] > vocalRegisterThresh){
-        fits = true;
-      }
-    }
-
-    if(songCriteriaSelected == "either_percent"){
-      if(d["register"] > vocalRegisterThresh || d["falsetto"] > 0){
-        fits = true;
-      }
+    if(d["register"] > vocalRegisterThresh){
+      fits = true;
     }
 
     return fits;
@@ -83,8 +77,11 @@ function init(data) {
     for (var year in newData){
       var falsettoCount = 0
       var vocalRegisterCount = 0
+
       var falsettoAvgCount = 0
       var denominatorCount = 0;
+      var vocalAvgCount = 0
+
       var totalPoints = 0;
 
       for (var song in newData[year].values){
@@ -93,40 +90,54 @@ function init(data) {
 
         if(isGood){
           denominatorCount = denominatorCount + 1;
-          if(newData[year].values[song]["falsetto"] > 0){
-            falsettoCount = falsettoCount + 1;
-          }
           var songPoints = +newData[year].values[song]["points"];
 
           totalPoints = totalPoints + songPoints;
 
-
-          vocalRegisterCount = vocalRegisterCount + +newData[year].values[song]["register"];
-
           if(weighted){
+
+            if(newData[year].values[song]["register"] > vocalRegisterThresh){
+              vocalRegisterCount = vocalRegisterCount + songPoints;
+            }
+
+            if(newData[year].values[song]["falsetto"] > falsettoThreshold){
+              falsettoCount = falsettoCount + songPoints;
+            }
+
             falsettoAvgCount = falsettoAvgCount + (songPoints * +newData[year].values[song]["falsetto"]);
+            vocalAvgCount = vocalAvgCount + (songPoints * +newData[year].values[song]["register"]);
+
           }
           else{
+
+            if(newData[year].values[song]["falsetto"] > falsettoThreshold){
+              falsettoCount = falsettoCount + 1;
+            }
+
+            if(newData[year].values[song]["register"] > vocalRegisterThresh){
+              vocalRegisterCount = vocalRegisterCount + 1;
+            }
+
             falsettoAvgCount = falsettoAvgCount + (+newData[year].values[song]["falsetto"]);
+            vocalAvgCount = vocalAvgCount + (+newData[year].values[song]["register"]);
+
           }
-
-
-          // if(newData[year].values[song]["register"] > vocalRegisterThresh){
-          //   vocalRegisterCount = vocalRegisterCount + 1;
-          // }
-          // if(newData[year].values[song]["register"] > vocalRegisterThresh || newData[year].values[song]["falsetto"] > 0){
-          //   eitherCount = eitherCount + 1;
-          // }
         }
+
       }
       if(weighted){
         denominatorCount = totalPoints;
       }
 
 
-      newData[year].falsetto_percent = falsettoCount/denominatorCount
-      newData[year].register_percent = vocalRegisterCount/denominatorCount
+      console.log(vocalRegisterCount,denominatorCount);
+
+      newData[year].falsetto_threshold = falsettoCount/denominatorCount
       newData[year].falsetto_avg = falsettoAvgCount/denominatorCount
+
+      newData[year].register_threshold = vocalRegisterCount/denominatorCount
+      newData[year].register_avg = vocalAvgCount/denominatorCount
+
     }
     dataSongsByYear = d3.map(newData,function(d){return d.key})
     buildLineChart(newData);
@@ -138,7 +149,7 @@ function init(data) {
     var container = d3.select(".scatter-plot");
     container.selectAll("svg").remove();
 
-    var margin = {top: 30, right: 30, bottom: 30, left: 30}
+    var margin = {top: 10, right: 30, bottom: 30, left: 30}
     var width = 250 - margin.left - margin.right; // Use the window's width
     var height = 250 - margin.top - margin.bottom; // Use the window's height
 
@@ -147,20 +158,19 @@ function init(data) {
     }
 
     var extentPercent = d3.extent(dataForChart,function(d){
-      return d["falsetto_percent"];
+      return d["falsetto_"+falsettoParameter];
     })
 
     var extentPercentTwo = d3.extent(dataForChart,function(d){
-      return d["register_percent"];
+      return d["register_"+registerParameter];
     })
-
 
     var xScale = d3.scaleLinear().domain(extentPercentTwo).range([0,width]);
     var yScale = d3.scaleLinear().domain(extentPercent).range([height,0]);
 
     var voronoi = d3.voronoi()
-      .x(function(d) { return xScale(d["register_percent"]); })
-      .y(function(d) { return yScale(d["falsetto_percent"]); })
+      .x(function(d) { return xScale(d["register_"+registerParameter]); })
+      .y(function(d) { return yScale(d["falsetto_"+falsettoParameter]); })
       .extent([[-margin.left, -margin.top], [width + margin.right, height + margin.bottom]])
       ;
 
@@ -242,10 +252,10 @@ function init(data) {
       .enter()
       .append("circle")
       .attr("cx",function(d){
-        return xScale(d["register_percent"])
+        return xScale(d["register_"+registerParameter])
       })
       .attr("cy",function(d){
-        return yScale(d["falsetto_percent"]);
+        return yScale(d["falsetto_"+falsettoParameter]);
       })
       .attr("r",4)
       ;
@@ -257,7 +267,7 @@ function init(data) {
       .enter()
       .append("g")
       .attr("transform",function(d){
-        return "translate("+xScale(d["register_percent"])+","+yScale(d["falsetto_percent"])+")"
+        return "translate("+xScale(d["register_"+registerParameter])+","+yScale(d["falsetto_"+falsettoParameter])+")"
       })
       ;
 
@@ -375,11 +385,26 @@ function init(data) {
         d3.select(this).select(".song-overlay").style("display",null);
       })
       .on("click",function(d){
-        console.log("here");
-        var sound = new Howl({
-          src: ['https://p.scdn.co/mp3-preview/170217205f9fa2853e8908b933b8e2564e908d04?cid=774b29d4f13844c495f206cafdad9c86']
-        });
-        sound.play();
+        console.log(playingId);
+        if(sounds){
+          sounds.stop();
+        }
+        if(d.pandora_id != playingId){
+          sounds = new Howl({
+            src:[d.preview_url],
+            format: ['mp3'],
+            autoplay: true,
+            loop: false,
+            volume: 0.5,
+          });
+
+          playingId = d.pandora_id;
+
+        }
+        else{
+          playingId = null;
+        }
+
 
       })
 
@@ -388,6 +413,13 @@ function init(data) {
       .attr("class","song-text")
       .text(function(d,i){
         return (i+1)+". "+d.song_title.slice(0,25);
+      })
+      .append("span")
+      .html(function(d){
+        if(d.preview_url.length > 5){
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'
+        }
+        return null;
       })
       ;
 
@@ -413,17 +445,33 @@ function init(data) {
 
     container.selectAll("svg").remove();
 
-    var margin = {top: 30, right: 30, bottom: 30, left: 30}
-    var width = 250 - margin.left - margin.right; // Use the window's width
-    var height = 250 - margin.top - margin.bottom; // Use the window's height
+    var margin = {top: 30, right: 10, bottom: 30, left: 30}
+    var width = 280 - margin.left - margin.right; // Use the window's width
+    var height = 200 - margin.top - margin.bottom; // Use the window's height
 
     function polygon(d) {
       return "M" + d.join("L") + "Z";
     }
 
+    if(lineChartParameter == "falsetto"){
+      songCriteriaSelected = lineChartParameter+"_"+falsettoParameter
+    }
+    if(lineChartParameter == "register"){
+      songCriteriaSelected = lineChartParameter+"_"+registerParameter
+    }
+
+    console.log(songCriteriaSelected);
+
+
     var extentPercent = d3.extent(dataForChart,function(d){
       return d[songCriteriaSelected];
     })
+
+    if(lineChartParameter == "falsetto"){
+      extentPercent[0] = 0;
+    }
+
+    console.log(extentPercent);
 
     var extentYear = d3.extent(dataForChart,function(d){
       return +d.key;
@@ -456,23 +504,48 @@ function init(data) {
       .attr("transform", "translate(" + 0 + "," + height + ")")
       .append("text")
       .attr("x",width/2)
-      .attr("y",25)
-      .text("year")
+      .attr("y",15)
+      .text("Year")
       .attr("text-anchor","middle")
       ;
 
-    var cross = {
-      "falsetto_percent":"falsetto",
-      "register_percent":"register",
-    };
-
-    svg.append("g")
+    var yAxis = svg.append("g")
       .attr("class","axis y")
       .attr("transform", "translate(" + 0 + "," + 0 + ")")
+
+    var yAxisG = yAxis
+      .selectAll("g")
+      .data([extentPercent[0],extentPercent[0] + ((extentPercent[1]-extentPercent[0])/2),extentPercent[1]])
+      .enter()
+      .append("g")
+      .attr("transform", function(d){
+        return "translate(" + 0 + "," + yScale(d) + ")"
+      })
+
+    yAxisG
+      .append("line")
+      .attr("x1",0)
+      .attr("x2",width)
+      .attr("y1",0)
+      .attr("y2",0)
+      ;
+
+    yAxisG
       .append("text")
-      .attr("x",0)
-      .attr("y",height/2)
-      .text(cross[songCriteriaSelected])
+      .attr("x",-10)
+      .attr("y",function(d){
+        return 0;
+      })
+      .text(function(d){
+        console.log(d);
+        if(lineChartParameter == "falsetto" && falsettoParameter == "threshold"){
+          return Math.round(d*100)/100*100 + "%"
+        }
+        if(lineChartParameter == "register" && registerParameter == "threshold"){
+          return Math.round(d*100)/100*100 + "%"
+        }
+        return Math.round(d*10)/10;
+      });
       ;
 
     var circles = svg
@@ -488,7 +561,7 @@ function init(data) {
       .attr("cy",function(d){
         return yScale(d[songCriteriaSelected]);
       })
-      .attr("r",2)
+      .attr("r",4)
       ;
 
     svg
@@ -608,6 +681,17 @@ function init(data) {
   var top10Filter = false;
 
   function setupBoxes(){
+    d3.select("#weighted").property("disabled", false)
+      .on("change", function() {
+        if(this.checked){
+          weighted = true;
+        }
+        else{
+          weighted = false;
+        }
+        calculatePercents(dataSongsByYearNestTotal)
+      });
+
     d3.select("#no-hip-hop").property("disabled", false)
       .on("change", function() {
         if(this.checked){
@@ -651,6 +735,35 @@ function init(data) {
         }
         calculatePercents(dataSongsByYearNestTotal)
       });
+
+      d3.select("#falsetto-options").on("change", function(d){
+          d3.select(this).selectAll("input").each(function(d){
+            if(d3.select(this).property("checked")){
+              falsettoParameter = d3.select(this).attr("class")
+              calculatePercents(dataSongsByYearNestTotal);
+            }
+          })
+        })
+
+      d3.select("#register-options").on("change", function(d){
+          d3.select(this).selectAll("input").each(function(d){
+            if(d3.select(this).property("checked")){
+              registerParameter = d3.select(this).attr("class")
+              calculatePercents(dataSongsByYearNestTotal);
+            }
+          })
+        })
+
+
+      d3.select("#line-chart-options").on("change", function(d){
+          d3.select(this).selectAll("input").each(function(d){
+            if(d3.select(this).property("checked")){
+              lineChartParameter = d3.select(this).attr("class")
+              calculatePercents(dataSongsByYearNestTotal);
+            }
+          })
+        })
+
 
   }
 

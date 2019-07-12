@@ -1,33 +1,117 @@
 /* CUSTOM STORY STYLE */
 #content
   height 100%
+  background #FF8A6E
   .viz-wrapper
     display flex
     .viz
       margin-right 30px
       display flex
+      background #f5967c
       width 300px
       justify-content center
       flex-wrap wrap
       .data-chooser
-        display flex
-        label
+        width 100%
+        padding-top 10px
+        background #251A2E
+        padding-bottom 20px
+        .head
+          font-size 16px
+          font-weight 500
+          color white
+          width 250px
+          margin 0 auto
+          margin-bottom 10px
+        .line
+          height 1px
+          width 250px
+          margin 0 auto
+          background white
+          opacity .3
+          margin-top 10px
+          margin-bottom 10px
+        .selector
           display flex
+          justify-content flex-start
+          width 250px
+          margin 0 auto
+          p
+            font-size 14px
+            font-weight 600
+            color white
+            line-height 1.4
+          form
+            color white
+            font-family $atlas
+            font-size 12px
+            font-weight 400
+            -webkit-font-smoothing auto
+            input
+              color white
+              font-family $atlas
+              font-size 14px
+              font-weight 400
+              -webkit-font-smoothing auto
+              margin-right 5px
+        .denominator
+          display flex
+          flex-wrap wrap
+          width 250px
+          margin 0 auto
+          justify-content flex-start
+          label
+            display flex
+            width 40%
+            color white
+            font-size 14px
+            font-weight 400
+            margin-bottom 5px
+            -webkit-font-smoothing auto
+            input
+              margin-right 5px
       .line-chart-container, .scatter-plot
+        form
+          color black
+          font-family $atlas
+          font-size 14px
+          font-weight 500
+          margin-top 10px
+          input
+            color black
+            font-family $atlas
+            font-size 14px
+            font-weight 400
+            -webkit-font-smoothing auto
+            margin-right 5px
         svg
           display block
           overflow visible
           .y
             text
               text-anchor end
+              dominant-baseline central
+              opacity .7
+            line
+              stroke white
+              shape-rendering crispEdges
+              stroke-width 1px
+              opacity .5
           .axis
             text
-              font-size 14px
+              font-size 11px
+              font-weight 500
               fill black
               font-family $atlas
+              opacity .7
             .sub
               font-weight 400
               font-size 11px
+          .circles
+            fill white
+            fill-opacity .5
+            stroke white
+            stroke-width 1px
           .lines
             pointer-events none
             path
@@ -45,8 +129,8 @@
               display none
               font-weight 600
           .text-points-hover-bg
-            fill white
-            stroke white
+            fill #f3967c
+            stroke #f3967c
             stroke-width 5px
 
           .text-points, .text-points-bg
@@ -56,8 +140,8 @@
             pointer-events none
             dominant-baseline middle
           .text-points-bg
-            fill white
-            stroke white
+            fill #f3967c
+            stroke #f3967c
             stroke-width 5px
             display none
           .voronoi
@@ -100,13 +184,18 @@
           z-index 1000
           width 300px
         .song-text
-          font-size 14px
+          font-size 12px
           font-family $atlas
           margin 0
+          font-weight 600
           position relative
           z-index 100
+          color rgba(255,255,255,.6)
       .numerator
-        color red
+        .song-text
+          color white
+          font-size 18px
+          font-weight 600
       .missing
         opacity .6
         display none
@@ -143,3 +232,4 @@
 .line-hover
   font-family $atlas
   font-size 12px
+  display none
