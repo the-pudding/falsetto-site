@@ -73,10 +73,15 @@
       .line-chart-container, .scatter-plot
         form
           color black
+          margin 0 auto
           font-family $atlas
-          font-size 14px
+          font-size 12px
+          width 220px
+          display flex
+          justify-content center
           font-weight 500
-          margin-top 10px
+          line-height 1.7
+          margin-top 20px
           input
             color black
             font-family $atlas
@@ -92,11 +97,6 @@
               text-anchor end
               dominant-baseline central
               opacity .7
-            line
-              stroke white
-              shape-rendering crispEdges
-              stroke-width 1px
-              opacity .5
           .axis
             text
               font-size 11px
@@ -104,12 +104,16 @@
               fill black
               font-family $atlas
               opacity .7
+            line
+              stroke white
+              shape-rendering crispEdges
+              stroke-width 1px
+              opacity .3
             .sub
               font-weight 400
               font-size 11px
           .circles
-            fill white
-            fill-opacity .5
+            fill rgba(255,255,255,.5)
             stroke white
             stroke-width 1px
           .lines
@@ -132,16 +136,17 @@
             fill #f3967c
             stroke #f3967c
             stroke-width 5px
-
           .text-points, .text-points-bg
             text-anchor middle
             font-family $atlas
-            font-size 10px
+            font-size 12px
+            font-weight 600
             pointer-events none
+            fill white
             dominant-baseline middle
           .text-points-bg
-            fill #f3967c
-            stroke #f3967c
+            fill #d06b50
+            stroke #d06b50
             stroke-width 5px
             display none
           .voronoi
@@ -151,7 +156,16 @@
               stroke black
               cursor pointer
       .scatter-plot
+        width 100%
+        background #d06b50
         svg
+          display block
+          margin 0 auto
+          margin-top 40px
+          .axis
+            text
+              opacity 1
+
           .circles
             circle
               fill #e6e6e6

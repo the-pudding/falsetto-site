@@ -63,7 +63,7 @@ function init(data) {
     if(singingFilter && isGood && +d.register == 0){
       isGood = false;
     }
-    if(maleFilter && isGood && ["male","duet"].indexOf(d.gender) == -1){
+    if(maleFilter && isGood && ["male"].indexOf(d.gender) == -1){
       isGood = false;
     }
     if(top10Filter && isGood && +d.peak_rank > 10){
@@ -149,9 +149,9 @@ function init(data) {
     var container = d3.select(".scatter-plot");
     container.selectAll("svg").remove();
 
-    var margin = {top: 10, right: 30, bottom: 30, left: 30}
-    var width = 250 - margin.left - margin.right; // Use the window's width
-    var height = 250 - margin.top - margin.bottom; // Use the window's height
+    var margin = {top: 10, right: 10, bottom: 30, left: 10}
+    var width = 220 - margin.left - margin.right; // Use the window's width
+    var height = 220 - margin.top - margin.bottom; // Use the window's height
 
     function polygon(d) {
       return "M" + d.join("L") + "Z";
@@ -175,6 +175,9 @@ function init(data) {
       ;
 
     var svg = container.append("svg")
+      .style("width",width+margin.left+margin.right+"px")
+      .style("height",height+margin.top+margin.bottom+"px")
+
       .attr("width",width+margin.left+margin.right)
       .attr("height",height+margin.top+margin.bottom)
       .datum(dataForChart.sort(function(a,b){
@@ -189,60 +192,119 @@ function init(data) {
       .append("text")
       .attr("x",width/2)
       .attr("y",25)
-      .text("falsetto")
+      .text("Register")
+      .style("font-size","12px")
       .attr("text-anchor","middle")
       ;
 
+
     svg.append("g")
+      .attr("class","axis y")
+      .attr("transform", "translate(" + 0 + "," + 0 + ")")
+      .append("text")
+      .attr("x",-37)
+      .attr("y",-15)
+      .style("text-anchor","start")
+      .style("font-size","12px")
+      .text("Falsetto")
+      ;
+
+
+    var xAxis = svg.append("g")
       .attr("class","axis")
-      .attr("transform", "translate(" + 0 + "," + height + ")")
-      .append("text")
-      .attr("x",width/2 - 50)
-      .attr("y",25)
-      .attr("class","sub")
-      .text("fewer songs")
-      .attr("text-anchor","end")
-      ;
-
-    svg.append("g")
-      .attr("class","axis")
-      .attr("transform", "translate(" + 0 + "," + height + ")")
-      .append("text")
-      .attr("x",width/2 + 50)
-      .attr("y",25)
-      .attr("class","sub")
-      .text("more songs")
-      .attr("text-anchor","start")
-      ;
-
-    svg.append("g")
-      .attr("class","axis y")
       .attr("transform", "translate(" + 0 + "," + 0 + ")")
+
+    var xAxisG = xAxis
+      .selectAll("g")
+      .data([extentPercentTwo[0],extentPercentTwo[0] + ((extentPercentTwo[1]-extentPercentTwo[0])/2),extentPercentTwo[1]])
+      .enter()
+      .append("g")
+      .attr("transform", function(d){
+        return "translate(" + xScale(d) + "," + height + ")"
+      })
+
+    xAxisG
+      .append("line")
+      .attr("x1",0)
+      .attr("x2",0)
+      .attr("y1",0)
+      .attr("y2",-height)
+      ;
+
+    xAxisG
       .append("text")
       .attr("x",0)
-      .attr("y",height/2)
-      .text("register")
+      .attr("y",function(d){
+        return 25;
+      })
+      .text(function(d,i){
+        if(i==1){
+          return ""
+        }
+        if(registerParameter == "threshold"){
+          return ((Math.round(d*100))) + "%"
+        }
+        return Math.round(d*10)/10;
+      })
+
       ;
 
-    svg.append("g")
+
+    var yAxis = svg.append("g")
       .attr("class","axis y")
       .attr("transform", "translate(" + 0 + "," + 0 + ")")
-      .append("text")
-      .attr("class","sub")
-      .attr("x",0)
-      .attr("y",height/2 - 20)
-      .text("higher")
+
+    var yAxisG = yAxis
+      .selectAll("g")
+      .data([extentPercent[0],extentPercent[0] + ((extentPercent[1]-extentPercent[0])/2),extentPercent[1]])
+      .enter()
+      .append("g")
+      .attr("transform", function(d){
+        return "translate(" + 0 + "," + yScale(d) + ")"
+      })
+
+    yAxisG
+      .append("line")
+      .attr("x1",0)
+      .attr("x2",width)
+      .attr("y1",0)
+      .attr("y2",0)
       ;
 
-    svg.append("g")
-      .attr("class","axis y")
-      .attr("transform", "translate(" + 0 + "," + 0 + ")")
+    yAxisG
       .append("text")
-      .attr("class","sub")
-      .attr("x",0)
-      .attr("y",height/2 + 17)
-      .text("lower")
+      .attr("x",-10)
+      .attr("y",function(d){
+        return 0;
+      })
+      .text(function(d){
+        if(falsettoParameter == "threshold"){
+          return ((Math.round(d*100))) + "%"
+        }
+        return Math.round(d*10)/10;
+      });
       ;
+
+
+    // svg.append("g")
+    //   .attr("class","axis y")
+    //   .attr("transform", "translate(" + 0 + "," + 0 + ")")
+    //   .append("text")
+    //   .attr("class","sub")
+    //   .attr("x",0)
+    //   .attr("y",height/2 - 20)
+    //   .text("higher")
+    //   ;
+    //
+    // svg.append("g")
+    //   .attr("class","axis y")
+    //   .attr("transform", "translate(" + 0 + "," + 0 + ")")
+    //   .append("text")
+    //   .attr("class","sub")
+    //   .attr("x",0)
+    //   .attr("y",height/2 + 17)
+    //   .text("lower")
+    //   ;
 
     var circles = svg
       .append("g")
@@ -348,7 +410,7 @@ function init(data) {
 
         textPoints.style("fill",function(d){
           if(d.key == year){
-            return "red";
+            return "white";
           }
           return null;
         })
@@ -427,7 +489,7 @@ function init(data) {
       .attr("class","song-overlay")
       .style("color",function(d){
         if(d.falsetto > 0){
-          return "red";
+          return "white";
         }
         return null
       })
@@ -586,7 +648,7 @@ function init(data) {
         var year = +d.data.key;
         circles.style("fill",function(d){
           if(d.key == year){
-            return "red";
+            return "white";
           }
           return null;
         })
@@ -648,6 +710,12 @@ function init(data) {
       })
       .attr("y",function(d){
         return yScale(d[songCriteriaSelected]) - 5;
+      })
+      .style("display",function(d){
+        if(d[songCriteriaSelected] == extentPercent[1]){
+          return "block";
+        }
+        return null;
       })
       .html(function(d){
         return "&rsquo;"+d.key.slice(-2);
