@@ -413,7 +413,6 @@ function init(data) {
           return null;
         })
         yearSelected = +d.data.key;
-        console.log(yearSelected);
         buildSongArray(dataSongsByYear,yearSelected)
       })
 
@@ -423,6 +422,7 @@ function init(data) {
   function buildSongArray(dataForChart,year){
 
     console.log("building song array");
+    d3.select(".year-selected").text(yearSelected);
 
     var container = d3.select(".song-container");
     container.selectAll("div").remove();
