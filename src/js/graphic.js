@@ -61,7 +61,7 @@ function init(data) {
     if(singingFilter && isGood && +d.register == 0){
       isGood = false;
     }
-    if(maleFilter && isGood && ["male"].indexOf(d.gender) == -1){
+    if(maleFilter && isGood && ["female"].indexOf(d.gender) == -1){
       isGood = false;
     }
     if(top10Filter && isGood && +d.peak_rank > 10){
@@ -427,6 +427,8 @@ function init(data) {
     var container = d3.select(".song-container");
     container.selectAll("div").remove();
 
+    var tooltip = d3.select(".tooltip")
+
     var songRows = container.selectAll("div")
       .data(dataForChart.get(year).values)
       .enter()
@@ -442,10 +444,15 @@ function init(data) {
         return fitsNumeratorCriteria(d)
       })
       .on("mouseover",function(d){
-        d3.select(this).select(".song-overlay").style("display","block");
+        console.log(d);
+        tooltip.style("display","block")
+        var text =  d.song_title + " - " + d.artist_name;
+        var desc = "falsetto: " + d.falsetto +", register: "+d.register;
+        tooltip.select(".title").text(text);
+        tooltip.select(".desc").text(desc);
       })
       .on("mouseout",function(d){
-        d3.select(this).select(".song-overlay").style("display",null);
+        tooltip.style("display",null)
       })
       .on("click",function(d){
         console.log(playingId);
@@ -480,7 +487,7 @@ function init(data) {
       .append("span")
       .html(function(d){
         if(d.preview_url.length > 5){
-          return '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="black" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'
         }
         return null;
       })
@@ -508,7 +515,7 @@ function init(data) {
 
     container.selectAll("svg").remove();
 
-    var margin = {top: 30, right: 10, bottom: 30, left: 30}
+    var margin = {top: 30, right: 10, bottom: 30, left: 40}
     var width = 280 - margin.left - margin.right; // Use the window's width
     var height = 200 - margin.top - margin.bottom; // Use the window's height
 
@@ -823,6 +830,84 @@ function init(data) {
           })
         })
 
+        d3.select(".search").select("input").on("keyup", searchKeyUp);
+
+        function searchKeyUp() {
+          searchSong(this.value.trim());
+        }
+
+        function requote(s){
+          var d3_requote_re = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
+          return s.replace(d3_requote_re, "\\$&");
+        };
+
+
+
+        function searchSong(value) {
+          var searchResults = d3.select(".search-results");
+
+
+          if (value.length > 2) {
+            searchResults.style("display","block");
+            var re = new RegExp("\\b" + requote(value), "i");
+
+            var filtered = data[0].filter(function(d){
+              if(re.test(d.song_title + " " + d.artist_name) == true){
+                return d
+              }
+              return null;
+            });
+
+            searchResults.selectAll("div").remove()
+
+            console.log(filtered);
+            var results = searchResults.selectAll("div").data(filtered).enter()
+              .append("div")
+              .attr("class","result")
+            results.on("click",function(d){
+              yearSelected = +d.year;
+              buildSongArray(dataSongsByYear,yearSelected)
+            })
+
+            results.append("p")
+              .attr("class","result-title")
+              .text(function(d){
+                return d.artist_name + "-" + d.song_title +  ", " + d.year;
+              })
+              ;
+
+            results.append("p")
+              .attr("class","result-detail")
+              .text(function(d){
+                // var falsettoText = "";
+                // var registerText = "";
+                // if(d.falsetto != "NULL"){
+                //   falsettoText = +d.falsetto
+                // }
+                // if(d.register != "NULL"){
+                //   registerText = +d.register
+                // }
+                return "falsetto: " + d.falsetto +", register: "+d.register;
+              })
+              ;
+          }
+          else {
+            searchResults.style("display",null);
+          }
+        }
+
+
+
+        d3.select(".show-hidden-label").select("input").property("disabled", false)
+          .on("change", function() {
+            if(this.checked){
+              d3.select(".song-container").classed("show-missing",true);
+            }
+            else{
+              d3.select(".song-container").classed("show-missing",false);
+            }
+            calculatePercents(dataSongsByYearNestTotal)
+          });
 
       d3.select("#line-chart-options").on("change", function(d){
           d3.select(this).selectAll("input").each(function(d){
@@ -879,7 +964,7 @@ function init(data) {
               }
             },
             range: {
-                'min': [1],
+                'min': [0],
                 'max': [10]
             }
         })
