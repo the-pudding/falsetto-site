@@ -61,7 +61,7 @@ function init(data) {
     if(singingFilter && isGood && +d.register == 0){
       isGood = false;
     }
-    if(maleFilter && isGood && ["female"].indexOf(d.gender) == -1){
+    if(maleFilter && isGood && ["male"].indexOf(d.gender) == -1){
       isGood = false;
     }
     if(top10Filter && isGood && +d.peak_rank > 10){
