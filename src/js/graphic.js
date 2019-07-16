@@ -55,7 +55,7 @@ function init(data) {
     if(hipHopFilter && isGood && d.genre == "Rap/Hip hop"){
       isGood = false;
     }
-    if(singingFilter && isGood && +d.spoken == 10){
+    if(singingFilter && isGood && +d.spoken > 7){
       isGood = false;
     }
     if(singingFilter && isGood && +d.register == 0){
@@ -461,7 +461,7 @@ function init(data) {
         }
         if(d.pandora_id != playingId){
           sounds = new Howl({
-            src:[d.preview_url],
+            src:["https://p.scdn.co/mp3-preview/"+d.preview_url],
             format: ['mp3'],
             autoplay: true,
             loop: false,
@@ -607,12 +607,11 @@ function init(data) {
         return 0;
       })
       .text(function(d){
-        console.log(d);
         if(lineChartParameter == "falsetto" && falsettoParameter == "threshold"){
-          return Math.round(d*100)/100*100 + "%"
+          return (Math.floor(d*100)) + "%"
         }
         if(lineChartParameter == "register" && registerParameter == "threshold"){
-          return Math.round(d*100)/100*100 + "%"
+          return (Math.floor(d*100)) + "%"
         }
         return Math.round(d*10)/10;
       });

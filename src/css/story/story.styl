@@ -338,10 +338,19 @@ body
         cursor pointer
         margin-right 30px
         span
+          position relative
+          display initial
           display none
+          svg
+            position absolute
+            top 5px
+            left 6px
+            fill black
+            stroke black
         .song-overlay
-
           display none
+
+
 
         .song-text
           font-size 12px
@@ -359,13 +368,6 @@ body
           font-weight 600
           margin-right 10px
           color rgba(0, 0, 0, 0.74)
-          span
-            position relative
-            display initial
-            svg
-              position absolute
-              top 4px
-              left 6px
       .missing
         opacity 1
         display none
