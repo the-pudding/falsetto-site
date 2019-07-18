@@ -30,30 +30,49 @@
 					<input type="checkbox" id="weighted" disabled>Weighted
 				</label>
 			</div>
-			<div class="line">
-			</div>
-			<div class="selector">
-				<p>Falsetto</p>
-				<form id="falsetto-options">
-  				<input  type='radio' class="avg" name="mode" checked>Avg</input>
-  				<input type='radio' class="threshold" name="mode">% over threshold</input>
-				</form>
-			</div>
-			<div class="line">
-			</div>
-			<div class="selector">
-				<p>Register</p>
-				<form id="register-options">
-					<input  type='radio' class="avg" name="mode" checked>Avg</input>
-					<input type='radio' class="threshold" name="mode">% over threshold</input>
-				</form>
-			</div>
+			<!-- <div class="line">
+			</div> -->
+			<!-- <div class="selectors-wrapper">
+				<div class="selector">
+					<p>Falsetto</p>
+					<form id="falsetto-options">
+	  				<input  type='radio' class="avg" name="mode" checked>Avg</input>
+	  				<input type='radio' class="threshold" name="mode">% over threshold</input>
+					</form>
+				</div>
+				<div class="line">
+				</div>
+				<div class="selector">
+					<p>Register</p>
+					<form id="register-options">
+						<input  type='radio' class="avg" name="mode" checked>Avg</input>
+						<input type='radio' class="threshold" name="mode">% over threshold</input>
+					</form>
+				</div>
+			</div> -->
 		</div>
 		<div class="line-chart-container">
-			<form id="line-chart-options">
+
+			<div class="selectors-wrapper">
+				<div class="selector">
+					<form id="falsetto-options">
+						<p>Falsetto</p>
+	  				<input  type='radio' class="falsetto-avg" name="mode" checked>Avg</input>
+	  				<input type='radio' class="falsetto-threshold" name="mode">% over threshold</input>
+						<p>Register</p>
+						<input  type='radio' class="register-avg" name="mode" checked>Avg</input>
+						<input type='radio' class="register-threshold" name="mode">% over threshold</input>
+					</form>
+				</div>
+				<div class="line">
+				</div>
+			</div>
+
+
+			<!-- <form id="line-chart-options">
 				<input  type='radio' class="falsetto" name="mode" checked>Falsetto</input>
 				<input type='radio' class="register" name="mode">Register</input>
-			</form>
+			</form> -->
 			<div class="line-hover">
 			</div>
 		</div>
@@ -63,7 +82,12 @@
 	</div>
 	<div class="song-container-wrapper">
 		<div class="top-row">
-			<p class="year-selected">1997</p>
+			<div class="year-selected-container">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+				<p class="year-selected">1997</p>
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+			</div>
+
 			<div class="slider-wrapper">
 				<p>Falsetto</p>
 				<div id="slider-falsetto">
@@ -90,9 +114,5 @@
 		<div class='song-container'>
 		</div>
 	</div>
-
-</div>
-
-<div class="year-selector">
 
 </div>

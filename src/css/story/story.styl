@@ -31,24 +31,28 @@ body
     display flex
     .viz
       margin-right 30px
-      display flex
       background #f8c784
-      width 300px
-      justify-content center
-      flex-wrap wrap
+      width 700px
       .data-chooser
         width 100%
+        height 60px
+        margin 0 auto
         padding-top 10px
         background #a0d3d6
-        padding-bottom 20px
+        padding-bottom 10px
+        display flex
+        justify-content center
+        .selectors-wrapper
+          padding-top 34px
 
         .head
           font-size 16px
           font-weight 500
           color rgba(0,0,0,.8)
-          width 250px
           margin 0 auto
-          margin-bottom 10px
+          margin-right 10px
+          margin-left 20px
+          align-self center
         .line
           height 1px
           width 250px
@@ -57,38 +61,16 @@ body
           opacity .3
           margin-top 10px
           margin-bottom 10px
-        .selector
-          display flex
-          justify-content flex-start
-          width 250px
-          margin 0 auto
-          p
-            font-size 14px
-            font-weight 600
-            color color rgba(0,0,0,.8)
-            line-height 1.4
-          form
-            color color rgba(0,0,0,.8)
-            font-family $atlas
-            font-size 12px
-            font-weight 400
-            -webkit-font-smoothing auto
-            input
-              color color rgba(0,0,0,.8)
-              font-family $atlas
-              font-size 14px
-              font-weight 400
-              -webkit-font-smoothing auto
-              margin-right 5px
         .denominator
           display flex
           flex-wrap wrap
-          width 250px
+          width 100%
+          align-self center
           margin 0 auto
+          margin-top 8px
           justify-content flex-start
           label
             display flex
-            width 40%
             color color rgba(0,0,0,.8)
             font-size 14px
             font-weight 400
@@ -97,24 +79,38 @@ body
             input
               margin-right 5px
       .line-chart-container, .scatter-plot
-        form
-          color black
-          margin 0 auto
-          font-family $atlas
-          font-size 12px
-          width 220px
+        .selector
+          justify-content flex-start
+          width 100%
           display flex
-          justify-content center
-          font-weight 500
-          line-height 1.7
-          margin-top 20px
-          input
-            color black
-            font-family $atlas
+          padding-top 30px
+          margin 0 auto
+          margin-bottom 20px
+          p
             font-size 14px
+            font-weight 600
+            color color rgba(0,0,0,.8)
+            line-height 1.4
+          form
+            color color rgba(0,0,0,.8)
+            font-family $atlas
+            display flex
+            font-size 12px
             font-weight 400
             -webkit-font-smoothing auto
-            margin-right 5px
+            justify-content center
+            width 100%
+            p
+              margin-right 10px
+              &:last-of-type
+                margin-left 10px
+            input
+              color color rgba(0,0,0,.8)
+              font-family $atlas
+              font-size 14px
+              font-weight 400
+              -webkit-font-smoothing auto
+              margin-right 5px
         svg
           display block
           overflow visible
@@ -125,22 +121,23 @@ body
               opacity .7
           .axis
             text
-              font-size 11px
+              font-size 15px
               font-weight 600
               fill black
               font-family $atlas
               opacity 1
             line
-              stroke white
+              stroke black
               shape-rendering crispEdges
               stroke-width 1px
               opacity .3
+              stroke-dasharray 3,2
             .sub
               font-weight 400
               font-size 11px
           .circles
-            fill #ed8b60
-            stroke #864f37
+            fill #ff6522
+            stroke #6b331a
             stroke-width 1px
           .lines
             pointer-events none
@@ -156,7 +153,8 @@ body
               pointer-events none
               dominant-baseline text-after-edge
               text-anchor middle
-              display none
+              display block
+              opacity .7
               font-weight 600
           .text-points-hover-bg
             fill #f8c784
@@ -165,7 +163,7 @@ body
           .text-points, .text-points-bg
             text-anchor middle
             font-family $atlas
-            font-size 12px
+            font-size 16px
             font-weight 600
             pointer-events none
             fill rgba(51, 16, 16, 0.82)
@@ -177,6 +175,7 @@ body
             display none
           .voronoi
             opacity 0
+            cursor pointer
             path
               fill black
               stroke black
@@ -184,6 +183,7 @@ body
       .scatter-plot
         width 100%
         background #f1886c
+        display none
         svg
           display block
           margin 0 auto
@@ -198,8 +198,8 @@ body
 
           .circles
             circle
-              fill #e6e6e6
-              stroke #888
+              fill #ff6522
+              stroke #6b331a
               stroke-width 1px
               display none
       p, label
@@ -271,6 +271,7 @@ body
             font-size 16px
             color black
             margin 0
+            pointer-events none
             align-self center
             margin-right 10px
         #slider-falsetto, #slider-register
@@ -308,12 +309,18 @@ body
                 margin-left 0px
 
 
-
-        .year-selected
-          margin 0
-          font-family $atlas
-          font-size 36px
-          color white
+        .year-selected-container
+          display flex
+          .year-selected
+            margin 0
+            font-family $atlas
+            font-size 36px
+            color white
+            padding 0 10px
+          svg
+            align-self center
+            stroke white
+            cursor pointer
         label
           display flex
           width 40%

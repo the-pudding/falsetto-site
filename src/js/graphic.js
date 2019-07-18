@@ -8,7 +8,9 @@ function resize() {}
 
 function init(data) {
   var sounds = null;
+  var textPoints = null;
   var playingId = null;
+  var circles = null;
   var falsettoThreshold = 3;
   var falsettoParameter = "avg";
   var registerParameter = "avg";
@@ -126,9 +128,6 @@ function init(data) {
       if(weighted){
         denominatorCount = totalPoints;
       }
-
-
-      console.log(vocalRegisterCount,denominatorCount);
 
       newData[year].falsetto_threshold = falsettoCount/denominatorCount
       newData[year].falsetto_avg = falsettoAvgCount/denominatorCount
@@ -304,13 +303,19 @@ function init(data) {
     //   .text("lower")
     //   ;
 
-    var circles = svg
+    circles = svg
       .append("g")
       .attr("class","circles")
       .selectAll("circle")
       .data(dataForChart)
       .enter()
       .append("circle")
+      .style("fill",function(d){
+        if(+d.key == yearSelected){
+          return "black";
+        }
+        return null;
+      })
       .attr("cx",function(d){
         return xScale(d["register_"+registerParameter])
       })
@@ -320,7 +325,7 @@ function init(data) {
       .attr("r",4)
       ;
 
-    var textPoints = svg
+    textPoints = svg
       .append("g")
       .selectAll("g")
       .data(dataForChart)
@@ -366,6 +371,18 @@ function init(data) {
 
 
         textPoints.sort(function(a,b){
+          a.sort = 0;
+          b.sort = 0
+          if (a.key == +year){
+            a.sort = 1;
+          }
+          if (b.key == +year){
+            b.sort = 1;
+          }
+          return a.sort - b.sort;
+        })
+
+        circles.sort(function(a,b){
           a.sort = 0;
           b.sort = 0
           if (a.key == +year){
@@ -444,7 +461,6 @@ function init(data) {
         return fitsNumeratorCriteria(d)
       })
       .on("mouseover",function(d){
-        console.log(d);
         tooltip.style("display","block")
         var text =  d.song_title + " - " + d.artist_name;
         var desc = "falsetto: " + d.falsetto +", register: "+d.register;
@@ -455,7 +471,6 @@ function init(data) {
         tooltip.style("display",null)
       })
       .on("click",function(d){
-        console.log(playingId);
         if(sounds){
           sounds.stop();
         }
@@ -515,9 +530,9 @@ function init(data) {
 
     container.selectAll("svg").remove();
 
-    var margin = {top: 30, right: 10, bottom: 30, left: 40}
-    var width = 280 - margin.left - margin.right; // Use the window's width
-    var height = 200 - margin.top - margin.bottom; // Use the window's height
+    var margin = {top: 30, right: 40, bottom: 30, left: 70}
+    var width = 550 - margin.left - margin.right; // Use the window's width
+    var height = 550 - margin.top - margin.bottom; // Use the window's height
 
     function polygon(d) {
       return "M" + d.join("L") + "Z";
@@ -574,7 +589,7 @@ function init(data) {
       .attr("transform", "translate(" + 0 + "," + height + ")")
       .append("text")
       .attr("x",width/2)
-      .attr("y",15)
+      .attr("y",20)
       .text("Year")
       .attr("text-anchor","middle")
       ;
@@ -624,13 +639,25 @@ function init(data) {
       .data(dataForChart)
       .enter()
       .append("circle")
+      .style("fill",function(d){
+        if(+d.key == yearSelected){
+          return "black";
+        }
+        return null;
+      })
+      .style("stroke",function(d){
+        if(+d.key == yearSelected){
+          return "black";
+        }
+        return null;
+      })
       .attr("cx",function(d){
         return xScale(d.key)
       })
       .attr("cy",function(d){
         return yScale(d[songCriteriaSelected]);
       })
-      .attr("r",4)
+      .attr("r",7)
       ;
 
     svg
@@ -653,23 +680,54 @@ function init(data) {
       .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; })
       .on("mouseover",function(d){
         var year = +d.data.key;
-        circles.style("fill",function(d){
+
+        textPointsContiner.sort(function(a,b){
+          a.sort = 0;
+          b.sort = 0
+          if (a.key == +year){
+            a.sort = 1;
+          }
+          if (b.key == +year){
+            b.sort = 1;
+          }
+          return a.sort - b.sort;
+        })
+
+      circles.style("fill",function(d){
           if(d.key == year){
-            return "white";
+            return "black";
+          }
+          return null;
+        })
+        .style("stroke",function(d){
+          if(d.key == year){
+            return "black";
           }
           return null;
         })
 
-        textPoints.style("display",function(d){
+      textPoints.style("opacity",function(d){
           if(d.key == year){
-            return "block";
+            return "1";
+          }
+          return null;
+        })
+        .style("font-size",function(d){
+          if(d.key == year){
+            return "18px";
           }
           return null;
         })
 
-        textPointsBg.style("display",function(d){
+      textPointsBg.style("opacity",function(d){
           if(d.key == year){
-            return "block";
+            return "1";
+          }
+          return null;
+        })
+        .style("font-size",function(d){
+          if(d.key == year){
+            return "18px";
           }
           return null;
         })
@@ -688,35 +746,37 @@ function init(data) {
       })
       ;
 
-    var textPointsBg = svg
+    var textPointsContiner = svg
       .append("g")
-      .attr("class","text-points-hover text-points-hover-bg")
-      .selectAll("text")
+      .selectAll("g")
       .data(dataForChart)
       .enter()
+      .append("g")
+      .attr("transform",function(d){
+        return "translate("+xScale(+d.key)+","+yScale(d[songCriteriaSelected])+")"
+      })
+
+    var textPointsBg = textPointsContiner
       .append("text")
+      .attr("class","text-points-hover text-points-hover-bg")
       .attr("x",function(d){
-        return xScale(+d.key)
+        return 0//xScale(+d.key)
       })
       .attr("y",function(d){
-        return yScale(d[songCriteriaSelected]) - 5;
+        return -12//yScale(d[songCriteriaSelected]) - 12;
       })
       .html(function(d){
         return "&rsquo;"+d.key.slice(-2);
       })
 
-    var textPoints = svg
-      .append("g")
-      .attr("class","text-points-hover")
-      .selectAll("text")
-      .data(dataForChart)
-      .enter()
+    var textPoints = textPointsContiner
       .append("text")
+      .attr("class","text-points-hover")
       .attr("x",function(d){
-        return xScale(+d.key)
+        return 0//xScale(+d.key)
       })
       .attr("y",function(d){
-        return yScale(d[songCriteriaSelected]) - 5;
+        return -12//yScale(d[songCriteriaSelected]) - 12;
       })
       .style("display",function(d){
         if(d[songCriteriaSelected] == extentPercent[1]){
@@ -811,24 +871,6 @@ function init(data) {
         calculatePercents(dataSongsByYearNestTotal)
       });
 
-      d3.select("#falsetto-options").on("change", function(d){
-          d3.select(this).selectAll("input").each(function(d){
-            if(d3.select(this).property("checked")){
-              falsettoParameter = d3.select(this).attr("class")
-              calculatePercents(dataSongsByYearNestTotal);
-            }
-          })
-        })
-
-      d3.select("#register-options").on("change", function(d){
-          d3.select(this).selectAll("input").each(function(d){
-            if(d3.select(this).property("checked")){
-              registerParameter = d3.select(this).attr("class")
-              calculatePercents(dataSongsByYearNestTotal);
-            }
-          })
-        })
-
         d3.select(".search").select("input").on("keyup", searchKeyUp);
 
         function searchKeyUp() {
@@ -839,8 +881,6 @@ function init(data) {
           var d3_requote_re = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
           return s.replace(d3_requote_re, "\\$&");
         };
-
-
 
         function searchSong(value) {
           var searchResults = d3.select(".search-results");
@@ -871,6 +911,7 @@ function init(data) {
             results.append("p")
               .attr("class","result-title")
               .text(function(d){
+                console.log(d);
                 return d.artist_name + "-" + d.song_title +  ", " + d.year;
               })
               ;
@@ -895,8 +936,6 @@ function init(data) {
           }
         }
 
-
-
         d3.select(".show-hidden-label").select("input").property("disabled", false)
           .on("change", function() {
             if(this.checked){
@@ -908,10 +947,42 @@ function init(data) {
             calculatePercents(dataSongsByYearNestTotal)
           });
 
-      d3.select("#line-chart-options").on("change", function(d){
+
+          // d3.select("#falsetto-options").on("change", function(d){
+          //     d3.select(this).selectAll("input").each(function(d){
+          //       if(d3.select(this).property("checked")){
+          //         falsettoParameter = d3.select(this).attr("class")
+          //         calculatePercents(dataSongsByYearNestTotal);
+          //       }
+          //     })
+          //   })
+          //
+          // d3.select("#register-options").on("change", function(d){
+          //     d3.select(this).selectAll("input").each(function(d){
+          //       if(d3.select(this).property("checked")){
+          //         registerParameter = d3.select(this).attr("class")
+          //         calculatePercents(dataSongsByYearNestTotal);
+          //       }
+          //     })
+          //   })
+
+      // d3.select("#line-chart-options").on("change", function(d){
+      //     d3.select(this).selectAll("input").each(function(d){
+      //       if(d3.select(this).property("checked")){
+      //         lineChartParameter = d3.select(this).attr("class")
+      //         calculatePercents(dataSongsByYearNestTotal);
+      //       }
+      //     })
+      //   })
+
+
+      d3.select("#falsetto-options").on("change", function(d){
           d3.select(this).selectAll("input").each(function(d){
             if(d3.select(this).property("checked")){
-              lineChartParameter = d3.select(this).attr("class")
+              var value = d3.select(this).attr("class");
+              lineChartParameter = value.split("-")[0];
+              falsettoParameter = value.split("-")[1]
+              registerParameter = value.split("-")[1]
               calculatePercents(dataSongsByYearNestTotal);
             }
           })
@@ -972,6 +1043,21 @@ function init(data) {
           vocalRegisterThresh = +values[0]
           calculatePercents(dataSongsByYearNestTotal)
         });
+
+        d3.select(".feather-arrow-right").on("click",function(){
+          var year = yearSelected + 1;
+
+          yearSelected = year;
+          calculatePercents(dataSongsByYearNestTotal);
+        })
+
+      d3.select(".feather-arrow-left").on("click",function(){
+        var year = yearSelected - 1;
+
+        yearSelected = year;
+        calculatePercents(dataSongsByYearNestTotal);
+      })
+
 
 
 
