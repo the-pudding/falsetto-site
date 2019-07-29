@@ -412,7 +412,7 @@ function init(data) {
             return null;
           })
           .style("display",function(d){
-            if(d.key == year){
+            if(d.key == year && d3.select(".line-chart-container").classed(".label-hide") != true){
               return "block";
             }
             return null;
@@ -528,11 +528,14 @@ function init(data) {
 
     var container = d3.select(".line-chart-container");
 
+    var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
     container.selectAll("svg").remove();
 
     var margin = {top: 30, right: 40, bottom: 30, left: 70}
-    var width = 550 - margin.left - margin.right; // Use the window's width
-    var height = 550 - margin.top - margin.bottom; // Use the window's height
+    var width = viewportWidth*.8 - margin.left - margin.right; // Use the window's width
+    var height = (viewportHeight - 190) - margin.top - margin.bottom; // Use the window's height
 
     function polygon(d) {
       return "M" + d.join("L") + "Z";
@@ -779,7 +782,7 @@ function init(data) {
         return -12//yScale(d[songCriteriaSelected]) - 12;
       })
       .style("display",function(d){
-        if(d[songCriteriaSelected] == extentPercent[1]){
+        if(d[songCriteriaSelected] == extentPercent[1] && d3.select(".line-chart-container").classed("label-hide") != true){
           return "block";
         }
         return null;
@@ -859,6 +862,19 @@ function init(data) {
         }
         calculatePercents(dataSongsByYearNestTotal)
       });
+
+    d3.select("#labels-off").property("disabled", false)
+      .on("change", function() {
+        if(this.checked){
+          d3.select(".line-chart-container").classed("label-hide",true)
+        }
+        else{
+          d3.select(".line-chart-container").classed("label-hide",false)
+        }
+        calculatePercents(dataSongsByYearNestTotal)
+
+      });
+
 
     d3.select("#top-10").property("disabled", false)
       .on("change", function() {
