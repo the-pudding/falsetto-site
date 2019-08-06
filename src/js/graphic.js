@@ -20,8 +20,8 @@ function init(data) {
   var vocalRegisterThresh = 6;
   var dataWeekWeighted = data[0];
   var dataSongsByYear = null;
-  var songCriteriaSelected = "falsetto_percent"
-  var lineChartParameter = "falsetto";
+  var songCriteriaSelected = "register_percent"
+  var lineChartParameter = "register";
   var dataSongsByYearNestTotal = d3.nest().key(function(d){
       return d.year;
     })
@@ -134,6 +134,8 @@ function init(data) {
 
       newData[year].register_threshold = vocalRegisterCount/denominatorCount
       newData[year].register_avg = vocalAvgCount/denominatorCount
+
+      console.log(+newData[year].key,vocalAvgCount,denominatorCount,vocalAvgCount/denominatorCount);
 
     }
     dataSongsByYear = d3.map(newData,function(d){return d.key})
